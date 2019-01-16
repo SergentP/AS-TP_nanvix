@@ -1,3 +1,4 @@
+// C'est la merde
 /*
  * Copyright(C) 2011-2016 Pedro H. Penna   <pedrohenriquepenna@gmail.com>
  *              2015-2016 Davidson Francis <davidsondfgl@hotmail.com>
