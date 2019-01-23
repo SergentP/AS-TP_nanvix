@@ -102,7 +102,7 @@ PUBLIC void yield(void)
 		if (p -> priority > next -> priority){
 			next->counter++;
 			next = p;
-		}else if (p-> priority == next -> priority)
+		}else if (p-> priority == next -> priority){
 			if (p-> nice > next -> nice){
 				next->counter++;
 				next = p;
@@ -117,15 +117,8 @@ PUBLIC void yield(void)
 				p -> counter++;
 			}
 		}else{
-
 			p -> counter++;
 		}
-
-		// if (p->counter > next->counter)
-		// {
-		// 	next->counter++;
-		// 	next = p;
-		// }
 	}
 	
 	/* Switch to next process. */
