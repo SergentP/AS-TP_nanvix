@@ -60,6 +60,12 @@ PUBLIC void resume(struct process *proc)
 		sched(proc);
 }
 
+int random(void){
+	extern unsigned _next;
+	_next = (_next * 1103515245) + 12345;
+	return ((_next >> 16) & 0x7fff);
+}
+
 /**
  * @brief Yields the processor.
  */
@@ -67,6 +73,9 @@ PUBLIC void yield(void)
 {
 	struct process *p;    /* Working process.     */
 	struct process *next; /* Next process to run. */
+
+	int nbTickets;
+	int k = 0;
 
 	/* Re-schedule process for execution. */
 	if (curr_proc->state == PROC_RUNNING)
@@ -76,8 +85,7 @@ PUBLIC void yield(void)
 	last_proc = curr_proc;
 
 	/* Check alarm. */
-	for (p = FIRST_PROC; p <= LAST_PROC; p++)
-	{
+	for (p = FIRST_PROC; p <= LAST_PROC; p++){
 		/* Skip invalid processes. */
 		if (!IS_VALID(p))
 			continue;
@@ -85,7 +93,16 @@ PUBLIC void yield(void)
 		/* Alarm has expired. */
 		if ((p->alarm) && (p->alarm < ticks))
 			p->alarm = 0, sndsig(p, SIGALRM);
+
+		nbTickets = (40 - p -> priority) / 10 + 1;
+
+		for(int i = 0; i < nbTickets; i++){
+			p -> tickets[i] = k;
+			k++;
+		}
 	}
+
+	int rand = random()*k;
 
 	/* Choose a process to run next. */
 	next = IDLE;
@@ -99,26 +116,34 @@ PUBLIC void yield(void)
 		 * Process with higher
 		 * waiting time found.
 		 */
-		if (p -> priority > next -> priority){
-			next->counter++;
-			next = p;
-		}else if (p-> priority == next -> priority){
-			if (p-> nice > next -> nice){
-				next->counter++;
+
+		for(int i = 0; i < nbTickets; i++){
+			if (p -> tickets[i] == rand){
 				next = p;
-			}else if (p-> nice == next -> nice){
-				if(p -> counter > next -> counter){
-					next->counter++;
-					next = p;
-				}else{
-					p -> counter++;
-				}
-			}else{
-				p -> counter++;
 			}
-		}else{
-			p -> counter++;
 		}
+
+		// PRIORITY
+		// if (p -> priority > next -> priority){
+		// 	next->counter++;
+		// 	next = p;
+		// }else if (p-> priority == next -> priority){
+		// 	if (p-> nice > next -> nice){
+		// 		next->counter++;
+		// 		next = p;
+		// 	}else if (p-> nice == next -> nice){
+		// 		if(p -> counter > next -> counter){
+		// 			next->counter++;
+		// 			next = p;
+		// 		}else{
+		// 			p -> counter++;
+		// 		}
+		// 	}else{
+		// 		p -> counter++;
+		// 	}
+		// }else{
+		// 	p -> counter++;
+		// }
 	}
 	
 	/* Switch to next process. */
