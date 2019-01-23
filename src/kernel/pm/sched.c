@@ -106,7 +106,7 @@ PUBLIC void yield(void)
 			if (p-> nice > next -> nice){
 				next->counter++;
 				next = p;
-			}else if (p-> counter == next -> counter){
+			}else if (p-> nice == next -> nice){
 				if(p -> counter > next -> counter){
 					next->counter++;
 					next = p;
