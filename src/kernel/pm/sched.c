@@ -24,6 +24,8 @@
 #include <nanvix/hal.h>
 #include <nanvix/pm.h>
 #include <signal.h>
+#include <nanvix/klib.h>
+
 
 /**
  * @brief Schedules a process to execution.
@@ -89,37 +91,52 @@ PUBLIC void yield(void)
 
 	/* Choose a process to run next. */
 	next = IDLE;
+	int nbMaxTicket = 0;
+
 	for (p = FIRST_PROC; p <= LAST_PROC; p++)
 	{
 		/* Skip non-ready process. */
 		if (p->state != PROC_READY)
 			continue;
 		
+		nbMaxTicket += p -> tickets;
+
 		/*
 		 * Process with higher
 		 * waiting time found.
 		 */
-		if (p -> priority > next -> priority){
-			next->counter++;
-			next = p;
-		}else if (p-> priority == next -> priority){
-			if (p-> nice > next -> nice){
-				next->counter++;
-				next = p;
-			}else if (p-> nice == next -> nice){
-				if(p -> counter > next -> counter){
-					next->counter++;
-					next = p;
-				}else{
-					p -> counter++;
-				}
-			}else{
-				p -> counter++;
-			}
-		}else{
-			p -> counter++;
-		}
+
+		// if (p -> priority > next -> priority){
+		// 	next->counter++;
+		// 	next = p;
+		// }else if (p-> priority == next -> priority){
+		// 	if (p-> nice > next -> nice){
+		// 		next->counter++;
+		// 		next = p;
+		// 	}else if (p-> nice == next -> nice){
+		// 		if(p -> counter > next -> counter){
+		// 			next->counter++;
+		// 			next = p;
+		// 		}else{
+		// 			p -> counter++;
+		// 		}
+		// 	}else{
+		// 		p -> counter++;
+		// 	}
+		// }else{
+		// 	p -> counter++;
+		// }
 	}
+	int randticket = (krand()%nbMaxTicket)+1;
+	p = FIRST_PROC;
+	do{
+		randticket -= p-> tickets;
+		p++;
+
+	}while(randticket > 0);
+
+	next = p;
+
 	
 	/* Switch to next process. */
 	next->priority = PRIO_USER;

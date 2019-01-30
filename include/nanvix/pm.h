@@ -204,6 +204,7 @@
     	unsigned alarm;          /**< Alarm.                  */
 		struct process *next;    /**< Next process in a list. */
 		struct process **chain;  /**< Sleeping chain.         */
+		int tickets ;			/*** Number of ticket of the process */
 		/**@}*/
 	};
 	
